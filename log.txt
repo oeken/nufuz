@@ -1,0 +1,207 @@
+This is : 
+onur
+My_Tokens
+[0,0,0,0,0]
+My_Cards
+[0,0,0,0,0]
+Golds
+0
+Board Tokens
+[4,4,4,4,4]
+
+
+[taketwosame,[black,black],[]]
+This is : 
+emre
+My_Tokens
+[0,0,0,0,0]
+My_Cards
+[0,0,0,0,0]
+Golds
+0
+Board Tokens
+[4,4,4,4,2]
+
+
+[reserve,1,1,[]]
+This is : 
+onur
+My_Tokens
+[0,0,0,0,2]
+My_Cards
+[0,0,0,0,0]
+Golds
+0
+Board Tokens
+[4,4,4,4,2]
+
+
+[takethreediff,[black,blue,green],[]]
+This is : 
+emre
+My_Tokens
+[0,0,0,0,0]
+My_Cards
+[0,0,0,0,0]
+Golds
+1
+Board Tokens
+[4,3,3,4,1]
+
+
+[reserve,2,1,[]]
+This is : 
+onur
+My_Tokens
+[0,1,1,0,3]
+My_Cards
+[0,0,0,0,0]
+Golds
+0
+Board Tokens
+[4,3,3,4,1]
+
+
+[reserve,3,1,[]]
+This is : 
+emre
+My_Tokens
+[0,0,0,0,0]
+My_Cards
+[0,0,0,0,0]
+Golds
+2
+Board Tokens
+[4,3,3,4,1]
+
+
+[taketwosame,[red,red],[]]
+This is : 
+onur
+My_Tokens
+[0,1,1,0,3]
+My_Cards
+[0,0,0,0,0]
+Golds
+1
+Board Tokens
+[4,3,3,2,1]
+
+
+[buy,tier,1,3]
+This is : 
+emre
+My_Tokens
+[0,0,0,2,0]
+My_Cards
+[0,0,0,0,0]
+Golds
+2
+Board Tokens
+[4,4,4,2,1]
+
+
+[taketwosame,[blue,blue],[]]
+This is : 
+onur
+My_Tokens
+[0,0,0,0,3]
+My_Cards
+[0,0,0,1,0]
+Golds
+0
+Board Tokens
+[4,2,4,2,1]
+
+
+[taketwosame,[green,green],[]]
+This is : 
+emre
+My_Tokens
+[0,2,0,2,0]
+My_Cards
+[0,0,0,0,0]
+Golds
+2
+Board Tokens
+[4,2,2,2,1]
+
+
+[taketwosame,[white,white],[]]
+This is : 
+onur
+My_Tokens
+[0,0,2,0,3]
+My_Cards
+[0,0,0,1,0]
+Golds
+0
+Board Tokens
+[2,2,2,2,1]
+
+
+[takethreediff,[black,blue,green],[]]
+This is : 
+emre
+My_Tokens
+[2,2,0,2,0]
+My_Cards
+[0,0,0,0,0]
+Golds
+2
+Board Tokens
+[2,1,1,2,0]
+
+
+[takethreediff,[blue,green,red],[black]]
+This is : 
+onur
+My_Tokens
+[0,1,3,0,4]
+My_Cards
+[0,0,0,1,0]
+Golds
+0
+Board Tokens
+[2,0,0,1,1]
+
+
+[takethreediff,[black,red,white],[black]]
+This is : 
+emre
+My_Tokens
+[2,3,1,3,-1]
+My_Cards
+[0,0,0,0,0]
+Golds
+2
+Board Tokens
+[1,0,0,0,1]
+
+
+[reserve,2,1,[black]]
+This is : 
+onur
+My_Tokens
+[1,1,3,1,4]
+My_Cards
+[0,0,0,1,0]
+Golds
+0
+Board Tokens
+[1,0,0,0,1]
+
+
+[taketwodiff,[black,white],[black,black]]
+This is : 
+emre
+My_Tokens
+[2,3,1,3,-1]
+My_Cards
+[0,0,0,0,0]
+Golds
+3
+Board Tokens
+[0,0,0,0,2]
+
+
