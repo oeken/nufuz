@@ -56,8 +56,8 @@ takeonehelper(TokenSelectionList,TokenGiveBackList) 		:-	validmove(4,TokenSelect
 getcardfromres(Location,Card) 				:- whosturn(Player), playerreserves(Player,List), nth1(Location,List,Card).
 getcardfromtier(TierNum,TierLocation,Card) 	:- tiercards(TierNum,List), nth1(TierLocation,List,Card).
 
-takecardhelper(Card) :- validmove(5,Card), cardpurchase(Card), forall(between(1,3,X) , drawtiercards(X)), incrementturnnum.
-reservecardhelper(Card,GiveBack) :- validmove(6,Card,GiveBack), cardreservation(Card), forall(between(1,3,X) , drawtiercards(X)), incrementturnnum.
+takecardhelper(Card) :- validmove(5,Card), cardpurchase(Card), forall(between(1,3,X) , drawtiercards(X)), takenobleifdeserved ,incrementturnnum.
+reservecardhelper(Card,GiveBack) :- validmove(6,Card,GiveBack), cardreservation(Card), tokengiveback(GiveBack), forall(between(1,3,X) , drawtiercards(X)), incrementturnnum.
 
 
 
@@ -65,6 +65,32 @@ reservecardhelper(Card,GiveBack) :- validmove(6,Card,GiveBack), cardreservation(
 incrementturnnum :- retract(turnnum(TurnNum)),
 					IncrementedTurnNum is TurnNum+1,
 					assert(turnnum(IncrementedTurnNum)).
+
+
+
+takenobleifdeserved :-	whosturn(Player),
+						noblecards(Nobles),						
+						forall(member(ANobleCard,Nobles),(
+															playercardcolorvalues(Player,CardPossessions),
+															nobleextract(ANobleCard,Values),
+															twolistsubtract(CardPossessions,Values,Remainder),
+															(
+															not(containsnegativeelement(Remainder))
+														->	(
+																
+																removecardfromitslocation(ANobleCard),
+																retract(playernobles(Player,PlayerNobleCards)),
+																append([ANobleCard],PlayerNobleCards,NewPlayerNobleCards),
+																assert(playernobles(Player,NewPlayerNobleCards))
+															)
+															;
+															(
+																true
+															))
+						)).
+
+
+						
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -85,9 +111,9 @@ validmovehelper(TokenSelectionList,TokenGiveBackList) :- 	whosturn(Player),
 																sum_list(TokenGiveBackList,Sum),
 																Sum == ReturnNum,
 																twolistsubtract(Hyphotetical,TokenGiveBackList,Remainder),
-																not(containsnegativeelement(Remainder)),
-
-															);
+																not(containsnegativeelement(Remainder))
+															)
+															;
 															(
 																occurrence(0,TokenGiveBackList,5)															
 															).
@@ -101,20 +127,43 @@ validmove(6,Card,GiveBack) :- 	whosturn(Player),
 
 								reservablecards(Cards),
 								member(Card,Cards),
-								not(remaininggolds(0)),
 								(
-									(
-									occurrence(0,GiveBack,5),
+								remaininggolds(0)
+							->	(
+									occurrence(0,GiveBack,5)
+								)
+								;
+								(
 									playertotaltokencount(Player,TotalTokens),
-									TotalTokens < 10
+									Hypothetical is TotalTokens+1,
+									Hypothetical>10
+								->	(
+										occurrence(0,GiveBack,4),
+										occurrence(1,GiveBack,1),
+										playertokens(Player,Tokens),
+										twolistsubtract(Tokens,GiveBack,Remainder),
+										not(containsnegativeelement(Remainder))
 									)
 									;
 									(
-									occurrence(0,GiveBack,4),
-									occurrence(1,GiveBack,1),
-									playertotaltokencount(Player,10)									
+										occurrence(0,GiveBack,5)
 									)
-								).
+
+								)).
+
+								%% (
+								%% 	(
+								%% 	occurrence(0,GiveBack,5),
+								%% 	playertotaltokencount(Player,TotalTokens),
+								%% 	TotalTokens < 10
+								%% 	)
+								%% 	;
+								%% 	(
+								%% 	occurrence(0,GiveBack,4),
+								%% 	occurrence(1,GiveBack,1),
+								%% 	playertotaltokencount(Player,10)									
+								%% 	)
+								%% ).
 
 
 
@@ -204,15 +253,26 @@ reservablecards(Cards) :- 	tiercards(1,C1),tiercards(2,C2),tiercards(3,C3),
 							append(C1,Temp,Cards).
 
 
-cardreservation(Card) :-	whosturn(Player),							
-							retract(playergolds(Player,Golds)),
-							NewGolds is Golds+1,
-							assert(playergolds(Player,NewGolds)),
-
+cardreservation(Card) :-	whosturn(Player),
+							
 							removecardfromitslocation(Card),
 							retract(playerreserves(Player,ReservedCards)),
 							append([Card],ReservedCards,NewReservedCards),
-							assert(playerreserves(Player,NewReservedCards)).
+							assert(playerreserves(Player,NewReservedCards)),
+
+							not(remaininggolds(0))
+						->	(
+								retract(playergolds(Player,Golds)),
+								NewGolds is Golds+1,
+								assert(playergolds(Player,NewGolds))
+							)
+							;
+							(
+								true
+							).
+							
+
+							
 							
 
 
@@ -269,6 +329,14 @@ removecardfromitslocation(Card) :- 	(
 										delete(ReservedCards,Card,NewReservedCards),
 										retract(playerreserves(Player,ReservedCards)),
 										assert(playerreserves(Player,NewReservedCards))
+									)
+									;
+									(
+										noblecards(NobleCards),
+										member(Card,NobleCards),
+										delete(NobleCards,Card,NewNobleCards),
+										retract(noblecards(NobleCards)),
+										assert(noblecards(NewNobleCards))
 									).
 									
 									
@@ -340,6 +408,9 @@ setupdynamicvariables :- 	playercount(PlayerCount),
 							forall(between(1,PlayerCount,X) , initiateplayer(X)),
 							
 							selectnoblecards,
+							noblecards(Cards),
+							assert(copynoblecards(Cards)),
+
 							forall(between(1,3,X) , drawtiercards(X)).
 
 							%% drawtiercards(1),
@@ -398,7 +469,7 @@ drawtiercards(TierIndex) :-		tiercards(TierIndex,CardList),
 								 		retract(tiercards(TierIndex,_)),
 								 		assert(tiercards(TierIndex,NewList)),
 
-								 		drawtiercards(TierIndex)
+								 		(drawtiercards(TierIndex);true)
 
 								 	)
 
@@ -518,6 +589,8 @@ playertokensbyindex(Player,Index,Count) :- playertokens(Player,Tokens), nth1(Ind
 %%%%%TEST
 
 %% playercardsbyindex(Player,Index,Count) :- 	playercardcolorvalues(Player,Cards), nth1(Index,Cards,Count).
+
+playertotalcardcount(Player,Count) :- playercardcolorvalues(Player,List), sum_list(List,Count).
 playercardsbyindex(Player,Index,Count) :- 	indexandcolor(Index,Color), playercardcount(Player,Color,Count),!.
 playercardsbycolor(Player,Color,Count) :- 	playercardcount(Player,Color,Count),!.
 %% playercardsbycolor(Player,Color,Count) :- 	playercardcolorvalues(Player,Cards), indexandcolor(Index,Color), nth1(Index,Cards,Count).
@@ -535,15 +608,45 @@ playercardsbycolor(Player,Color,Count) :- 	playercardcount(Player,Color,Count),!
 
 
 
-playerpoints(Player,Points) :- 	playercards(Player,Cards),
-								findall(Pts,(member(Card,Cards),cardextract(Card,pts,Pts)),PtsSet),
-								sumlist(PtsSet,Points).
+playerpoints(Player,Points) :- 	playernobles(Player,Nobles),
+								length(Nobles,NobleCount),
+								NoblePoints is 3*NobleCount,
+
+								playercards(Player,Cards),
+								findall(Pts1,(member(Card,Cards),cardextract(Card,pts,Pts1)),PtsSet1),								
+								sumlist(PtsSet1,CardPoints),
+								Points is NoblePoints+CardPoints.
 
 
 gameisnoton :- winner(_),whosturn(1).
 gameison :- not(gameisnoton).
 
-winner(Player) :- playerpoints(Player,Points), Points >= 15 , !.
+winner(Player) :- 	bagof(Pla,(playerpoints(Pla,Po),Po>=15),EligiblePlayers),
+					bagof(Po,(playerpoints(Pla,Po),Po>=15),TheirPoints),
+					max_member(MaxPoint,TheirPoints),
+					findall(Index,(nth1(Index,TheirPoints,MaxPoint)),MaxIndexes),
+					(
+					length(MaxIndexes,1)
+				->	(
+						nth1(1,MaxIndexes,WinnerIndex),
+						nth1(WinnerIndex,EligiblePlayers,Player)
+					)
+					;
+					(
+						bagof(Count,(member(Index,MaxIndexes), nth1(Index,EligiblePlayers,Player), playertotalcardcount(Player,Count)),Cs),
+						min_member(MinCardCount,Cs),
+						findall(MinIndex,(nth1(MinIndex,Count,MinCardCount)),MinIndexes),
+						length(MinIndexes,1)
+					->	(
+							nth1(1,MinIndexes,WinnerIndex),
+							nth1(WinnerIndex,EligiblePlayers,Player)
+						)
+						;
+						(
+							Player = friendship
+						)											
+					)).
+					
 
 
 
@@ -690,7 +793,7 @@ cardextract(Card,pts,Result) :- nth1(2,Card,Result).
 cardextract(Card,color,Result) :- nth1(3,Card,Result).
 cardextract(Card,price,Result) :- sublist(4,8,Card,Result).
 
-
+nobleextract(NobleCard,List) :- sublist(2,6,NobleCard,List).
 
 tokenlistify([],[0,0,0,0,0]).
 tokenlistify([H|T],List) :- colorandlist(H,L1), tokenlistify(T,L2), twolistsum(L1,L2,List).
@@ -700,6 +803,9 @@ colorandlist(blue,[0,1,0,0,0]).
 colorandlist(green,[0,0,1,0,0]).
 colorandlist(red,[0,0,0,1,0]).
 colorandlist(black,[0,0,0,0,1]).
+
+
+playernobleindexes(Player,List) :- playernobles(Player,Nobles), copynoblecards(WholeNobles), findall(Index,(member(ACard,Nobles),nth1(Index,WholeNobles,ACard)), List) .
 
 
 

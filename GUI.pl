@@ -72,58 +72,53 @@ closedimg(Path) :- basepath(cards,Base), concat_threeway(Base,'closed','.jpg',Pa
 
 
 
-updateGUI :- 	noblenum(NN),
-				forall(between(1,NN,X),(
-										noblecards(N),
-										getids(N,NobleIds),
-										nth1(X,NobleIds,Id),
-										cards(Id,ImgPath),
-
-										nobledialog(X,BM),
-										send(BM,load,ImgPath)
-				)),
+updateGUI :- 	
 
 
 
 				forall(between(1,3,X),(
 										forall(between(1,4,Y),(
 																
-																
-																
-																													
 																(
-																whosturn(Player),
-																purchasablecards(Player,Purchasables),
-																tiercards(X,TierCards),
-																nth1(Y,TierCards,CardDetail),
-																member(CardDetail,Purchasables)
-																)
-															->	(
 																	
-																	tiercards(X,Cards),
-																	getids(Cards,Ids),
-																	nth1(Y,Ids,Id),
-																	
-																	cards(framed,Id,ImgPath),
-																	carddialog(X,Y,BM),
-																	send(BM,load, ImgPath)
-																)
-																;
-																(
-																	tiercards(X,Cards),
-																	getids(Cards,Ids),
-																	nth1(Y,Ids,Id),
-																	
-																	cards(Id,ImgPath),
-																	carddialog(X,Y,BM),
-																	send(BM,load, ImgPath)
+																	(tiercards(X,TierCards),
+																	nth1(Y,TierCards,CardDetail))
+																->	(
+																			(whosturn(Player),																	
+																			purchasablecards(Player,Purchasables),
+																			member(CardDetail,Purchasables))
+																		->	(
+																				tiercards(X,Cards),
+																				getids(Cards,Ids),
+																				nth1(Y,Ids,Id),
+																				
+																				cards(framed,Id,ImgPath),
+																				carddialog(X,Y,BM),
+																				send(BM,load, ImgPath)
+																			)
+																			;
+																			(
+																				tiercards(X,Cards),
+																				getids(Cards,Ids),
+																				nth1(Y,Ids,Id),
+																				
+																				cards(Id,ImgPath),
+																				carddialog(X,Y,BM),
+																				send(BM,load, ImgPath)
+																			)
+																	)
+																	;
+																	(
+																		emptyimg(EmptyPath),
+																		carddialog(X,Y,BM),
+																		send(BM,load, EmptyPath)
+																	)
 																)
 																
-
-																
-
-										))
-				)),
+															)
+												)
+										)
+				),
 
 				
 
@@ -149,6 +144,11 @@ updateGUI :- 	noblenum(NN),
 										playerpoints(X,Points),										
 										playerdialog(X,point,PointDialog),
 										send(PointDialog,string(Points)),														
+
+										playernobleindexes(X,NobleIndexes),										
+										playerdialog(X,noble,NobleIndexDialog),
+										listtoatom(NobleIndexes,Printable),
+										send(NobleIndexDialog,string(Printable)),														
 
 										forall(between(1,5,Y),(
 																indexandcolor(Y,CurrentColor),																
@@ -480,6 +480,17 @@ createGUI :-
 										send(T,append,L,colspan := 5)
 										)),
 
+				send(T,next_row),
+
+				send(T,append,text('Nobles')),
+
+				forall(between(1,PlayerCount,X), (										
+										playernobleindexes(X,NobleIndexes),
+										new(L,text(NobleIndexes)),
+										assert(playerdialog(X,noble,L)),
+										send(T,append,L,colspan := 5)
+										)),
+
 
 				send(G4,append,T),
 
@@ -503,7 +514,16 @@ createGUI :-
 
 
 
-				
+				noblenum(NN),
+				forall(between(1,NN,X),(
+										noblecards(N),
+										getids(N,NobleIds),
+										nth1(X,NobleIds,Id),
+										cards(Id,ImgPath),
+
+										nobledialog(X,BM),
+										send(BM,load,ImgPath)
+				)),
 				
 
 				send(T1,open).
@@ -524,3 +544,10 @@ destroyGUI :- 	boarddialog(B),
 
 
 getids(CardList,IdList) :- findall(Id , (member(X,CardList),nth1(1,X,Id)), IdList).
+
+
+
+listtoatom([] , ' ').
+listtoatom([H|T],Atom) :- listtoatom(T,InnerAtom), atom_concat(H,',',Temp), atom_concat(Temp,InnerAtom,Atom).
+
+

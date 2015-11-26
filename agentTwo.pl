@@ -1,6 +1,8 @@
 :- multifile getaction/2.
 
-getaction(agentTwo,Action) :-	generaterandomaction(Action),log(Action),log('\n').
+getaction(agentTwo,Action) :-	generaterandomaction(Action),log('MY MOVE : '),log(Action),log('\n'),sleep(0).
+
+%% getaction(agentTwo,Action) :-	generaterandomaction(Action),log(Action),log('\n'),sleep(5).
 
 %, display(Action), display(' ------- Cont?\n'), read(_).
 
@@ -64,14 +66,14 @@ findactionsix([]).
 
 
 
-generatetokenlist(three,Ss)		:- setof(S,tricolorgenerator(S),Ss).
-generatetokenlist(two,Ss)		:- setof(S,bicolorgenerator(S),Ss).
-generatetokenlist(one,Ss)		:- setof(S,unicolorgenerator(S),Ss).
+generatetokenlist(three,ShuffledSs)		:- setof(S,tricolorgenerator(S),Ss), random_permutation(Ss,ShuffledSs) .
+generatetokenlist(two,ShuffledSs)		:- setof(S,bicolorgenerator(S),Ss), random_permutation(Ss,ShuffledSs) .
+generatetokenlist(one,ShuffledSs)		:- setof(S,unicolorgenerator(S),Ss), random_permutation(Ss,ShuffledSs) .
 
-generatetokenlist(threediff,Ss) :- setof(S,tridiffcolorgenerator(S),Ss).
-generatetokenlist(twosame,Ss) 	:- setof(S,bisamecolorgenerator(S),Ss).
-generatetokenlist(twodiff,Ss) 	:- setof(S,bidiffcolorgenerator(S),Ss).
-generatetokenlist(one,Ss) 		:- setof(S,unicolorgenerator(S),Ss).
+generatetokenlist(threediff,ShuffledSs) :- setof(S,tridiffcolorgenerator(S),Ss), random_permutation(Ss,ShuffledSs) .
+generatetokenlist(twosame,ShuffledSs) 	:- setof(S,bisamecolorgenerator(S),Ss), random_permutation(Ss,ShuffledSs) .
+generatetokenlist(twodiff,ShuffledSs) 	:- setof(S,bidiffcolorgenerator(S),Ss), random_permutation(Ss,ShuffledSs) .
+generatetokenlist(one,ShuffledSs) 		:- setof(S,unicolorgenerator(S),Ss), random_permutation(Ss,ShuffledSs) .
 
 
 
@@ -107,9 +109,5 @@ setlist(A,A).
 %% doablemoves(taketwodiff,List).
 %% doablemoves(takeone,List).
 
-
-log(Action) :- 	open('log.txt',append,Stream),
-				write(Stream,Action), nl(Stream),
-				close(Stream).
 
 

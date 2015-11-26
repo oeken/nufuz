@@ -38,7 +38,7 @@ initializeGame :- 	display('Please enter player names and modules, example: [[on
 					
 
 run :- 	
-		
+		initlog,
 		initializeGame,
 		initializeGUI,
 		gameloop.
@@ -51,8 +51,10 @@ gameloop :- (gameison)
 				updateGUI,
 				whosturnname(PlayerName),				
 
+				log('\n'),
 				log('This is : '),
 				log(PlayerName),
+				log('\n'),
  
 				whosturn(Player),
 				playertokens(Player,Tokens),
@@ -60,21 +62,23 @@ gameloop :- (gameison)
 				playergolds(Player,Golds),
 				tokensonboard(BoardTokens),
 
-				log('My_Tokens'),
+				log('My_Tokens : '),
 				log(Tokens),
-				log('My_Cards'),
+				log('\n'),
+				log('My_Cards : '),
 				log(Cards),
-				log('Golds'),
+				log('\n'),
+				log('Golds : '),
 				log(Golds),
-				log('Board Tokens'),
+				log('\n'),
+				log('Board Tokens : '),
 				log(BoardTokens),
+				log('\n'),
 							
 
 
 				
-				display('Hey it is my turn : '),
-				display(PlayerName),
-				display('\n'),
+				
 								
 				getmodulename(PlayerName,ModuleName),
 				queryandapplyaction(ModuleName),				
@@ -87,10 +91,11 @@ gameloop :- (gameison)
 			)
 			;
 			(			
+				updateGUI,
 				winner(PlayerNum),
-				display('Wohooo i won : '),
-				display(PlayerNum),
-				display('\n')
+				log('Wohooo i won : '),
+				log(PlayerNum),
+				log('\n')
 			).	
 			
 			
@@ -98,17 +103,21 @@ queryandapplyaction(ModuleName) :-	getaction(ModuleName,Action),
 									updategame(Action)
 								->	(true)
 									;
-									display('Invalid action command, re-enter:\n'),
+									log('Invalid action command, re-enter:\n'),
 									queryandapplyaction(ModuleName).
 
 
 
 
-
+initlog:- 	open('log.txt',write,Stream),
+			write(Stream,'Log FILE\n\n\n'),
+			close(Stream).
 
 log(Action) :- 	open('log.txt',append,Stream),
-				write(Stream,Action), nl(Stream),
-				close(Stream).
+				write(Stream,Action),
+				close(Stream),
+
+				display(Action).
 
 
 
